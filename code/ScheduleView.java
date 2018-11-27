@@ -25,7 +25,7 @@ public class ScheduleView extends JFrame{
         this.database = database;
         
         this.setTitle("Scheduler");
-        this.setLocationRelativeTo(null);
+        this.setLocationRelativeTo(null); //center window on screen
         
         main = new JPanel();
         mySchedule = new JPanel();
