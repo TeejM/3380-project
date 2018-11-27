@@ -14,6 +14,7 @@ public class ScheduleView extends JFrame{
     private final JButton viewSchedule = new JButton("Schedule");
     private final JButton registeredCourses = new JButton("Registered Courses");
     private final JButton register = new JButton("Register Course");
+    private final JButton backToMain = new JButton("Back");
     private final JTable table;
     private TableModel model;
     private TableColumnModel columns;
@@ -25,7 +26,7 @@ public class ScheduleView extends JFrame{
         this.database = database;
         
         this.setTitle("Scheduler");
-        this.setLocationRelativeTo(null); //center window on screen
+        this.setLocationRelativeTo(null);
         
         main = new JPanel();
         mySchedule = new JPanel();
@@ -50,6 +51,7 @@ public class ScheduleView extends JFrame{
         
         scrollpane = new JScrollPane(table);
         scrollpane.setPreferredSize(new Dimension(800, 480));
+        browser.add(backToMain);
         browser.add(scrollpane);
         browser.add(register);
         
@@ -63,12 +65,22 @@ public class ScheduleView extends JFrame{
         browseCourses.addActionListener(listenForBrowse);
     }
     
+    public void addMainListener(ActionListener listenForMain) {
+        
+        backToMain.addActionListener(listenForMain);
+    }
+    
     public void showBrowse() {
         
         main.setVisible(false);
         this.add(browser);
         this.setSize(900, 600);
         browser.setVisible(true);
+    }
+    
+    public void showMain() {
+        browser.setVisible(false);
+        main.setVisible(true);
     }
     
     private TableModel createTable() {
