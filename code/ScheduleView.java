@@ -8,14 +8,17 @@ import javax.swing.table.*;
 public class ScheduleView extends JFrame{
 
     private final ScheduleDatabase database;
-    private final JPanel main, mySchedule, browser, registered;
+    private final JPanel main, mySchedule, browser, registered, adder;
     private final JButton addCourse = new JButton("Add Course");
     private final JButton browseCourses = new JButton("Browse Courses");
     private final JButton viewSchedule = new JButton("Schedule");
     private final JButton registeredCourses = new JButton("Registered Courses");
     private final JButton register = new JButton("Register Course");
-    private final JButton backToMain = new JButton("Back");
+    private final JButton search = new JButton("Search Course");
+    private final JButton backToMain1 = new JButton("Back");
+    private final JButton backToMain2 = new JButton("Back");
     private final JTable table;
+    private final JTextField dept, courseNum, sectionNum;
     private TableModel model;
     private TableColumnModel columns;
     private final JScrollPane scrollpane;
@@ -32,6 +35,7 @@ public class ScheduleView extends JFrame{
         mySchedule = new JPanel();
         browser = new JPanel();
         registered = new JPanel();
+        adder = new JPanel();
         
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(600, 200);
@@ -51,9 +55,27 @@ public class ScheduleView extends JFrame{
         
         scrollpane = new JScrollPane(table);
         scrollpane.setPreferredSize(new Dimension(800, 480));
-        browser.add(backToMain);
+        browser.add(backToMain1);
         browser.add(scrollpane);
         browser.add(register);
+        
+        JLabel textLabel1 = new JLabel("Department");
+        dept = new JTextField(4);
+        textLabel1.setLabelFor(dept);
+        JLabel textLabel2 = new JLabel("Course Number");
+        courseNum = new JTextField(4);
+        textLabel2.setLabelFor(courseNum);
+        JLabel textLabel3 = new JLabel("Section Number");
+        sectionNum = new JTextField(3);
+        textLabel3.setLabelFor(sectionNum);
+        adder.add(textLabel1);
+        adder.add(dept);
+        adder.add(textLabel2);
+        adder.add(courseNum);
+        adder.add(textLabel3);
+        adder.add(sectionNum);
+        adder.add(search);
+        adder.add(backToMain2);
         
         this.add(main);
         
@@ -65,9 +87,18 @@ public class ScheduleView extends JFrame{
         browseCourses.addActionListener(listenForBrowse);
     }
     
-    public void addMainListener(ActionListener listenForMain) {
+    public void addAdderListener(ActionListener listenForAdder) {
         
-        backToMain.addActionListener(listenForMain);
+        addCourse.addActionListener(listenForAdder);
+    }
+    
+    public void addMain1Listener(ActionListener listenForMain1) {
+        
+        backToMain1.addActionListener(listenForMain1);
+    }
+    
+    public void addMain2Listener(ActionListener listenForMain2) {
+        backToMain2.addActionListener(listenForMain2);
     }
     
     public void showBrowse() {
@@ -78,8 +109,21 @@ public class ScheduleView extends JFrame{
         browser.setVisible(true);
     }
     
-    public void showMain() {
+    public void showAdder() {
+        
+        main.setVisible(false);
+        this.add(adder);
+        this.setSize(600, 125);
+        adder.setVisible(true);
+    }
+    
+    public void showMain1() {
         browser.setVisible(false);
+        main.setVisible(true);
+    }
+    
+    public void showMain2() {
+        adder.setVisible(false);
         main.setVisible(true);
     }
     

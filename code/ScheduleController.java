@@ -13,7 +13,9 @@ public class ScheduleController
         this.database = database;
         
         this.view.addBrowseListener(new BrowseListener());
-        this.view.addMainListener(new MainListener());
+        this.view.addAdderListener(new AdderListener());
+        this.view.addMain1Listener(new Main1Listener());
+        this.view.addMain2Listener(new Main2Listener());
     }
     
     public void register() {
@@ -40,11 +42,26 @@ public class ScheduleController
         }
     }
     
-    class MainListener implements ActionListener {
+    class AdderListener implements ActionListener {
+        
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            view.showAdder();
+        }
+    }
+    
+    class Main1Listener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            view.showMain();
+            view.showMain1();
+        }
+    }
+    
+    class Main2Listener implements ActionListener {
+        
+        public void actionPerformed(ActionEvent ae) {
+            view.showMain2();
         }
     }
 }
