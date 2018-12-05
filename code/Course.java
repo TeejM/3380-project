@@ -1,17 +1,21 @@
 package schedulesystem;
 
-public class Course {
+import java.io.Serializable;
 
-    private String instructor, day, title, department;
+public class Course implements Serializable {
+
+    private String day, title, department;
     private int startTime, endTime, section, number, hours;
     
     public Course() {
         
     }
     
-    public Course(String instructor, String day, String title, String department, int startTime, int endTime, int section, int number, int hours) {
-        this.instructor = instructor;
-        this.day = day;
+    public Course(String day, String title, String department, int startTime, int endTime, int section, int number, int hours) {
+        if(day.length() > 5)
+            this.day = day.substring(0, 5);
+        else
+            this.day = day;
         this.title = title;
         this.department = department;
         this.startTime = startTime;
@@ -21,8 +25,8 @@ public class Course {
         this.hours = hours;
     }
     
-    public String getInstructor() {
-        return instructor;
+    public String toString() {
+        return department + " " + number + "-" + section;
     }
     
     public String getDay() {
@@ -56,11 +60,7 @@ public class Course {
     public int getHours() {
         return hours;
     }
-    
-    public void setInstructor(String instructor) {
-        this.instructor = instructor;
-    }
-    
+
     public void setDay(String day) {
         this.day = day;
     }
