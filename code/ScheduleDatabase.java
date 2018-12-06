@@ -1,5 +1,6 @@
 package schedulesystem;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,6 +34,7 @@ public class ScheduleDatabase {
             fileIn.close();
         }
         catch(FileNotFoundException e) {
+            System.out.println("Database not found");
             courses = new ArrayList<>();
             parseCourses();
         }
@@ -49,6 +51,12 @@ public class ScheduleDatabase {
     }
     
     public Course get(int i) {
+        try {
+            courses.get(i);
+        }
+        catch(IndexOutOfBoundsException e){
+            JOptionPane.showMessageDialog(null, "Please select a class");
+        }
         return courses.get(i);
     }
     
@@ -60,7 +68,7 @@ public class ScheduleDatabase {
         return departments;
     }
     
-    private void parseCourses() throws FileNotFoundException, IOException {
+   private void parseCourses() throws FileNotFoundException, IOException {
         String regex = "([A-Z]+)\\s+(\\d\\d\\d\\d).*?(\\d)\\s+([A-Z/]+\\s+[A-Z/]*\\s*[A-Z/]*\\s*[A-Z/]*\\s*[A-Z/]*\\s*)\\s+(\\d).0\\s+(\\d+)-(\\d+)(?:N*)\\s+([A-Z]+\\s*[A-Z]*\\s*[A-Z]*)";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher;
