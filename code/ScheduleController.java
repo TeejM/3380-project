@@ -1,8 +1,11 @@
 package schedulesystem;
 
-import javax.swing.*;
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class ScheduleController
 {
@@ -18,6 +21,9 @@ public class ScheduleController
         this.view.addRegisterListener(new Actions());
         this.view.addRegisteredCoursesListener(new Actions());
         this.view.addDropListener(new Actions());
+        this.view.addAdderListener(new Actions());
+        this.view.addBackListener(new Actions());
+        this.view.addLinkListener(new Actions());
     }
     
     public void register(Course course) {
@@ -50,13 +56,34 @@ public class ScheduleController
 
             if (ae.getSource() == view.register) {
                 Course reg = view.getSelectedCourse();
+                view.removeRowTable();
                 register(reg);
+                database.remove(reg);
             }
 
             if (ae.getSource() == view.drop) {
                 Course course = view.getSelectedDropCourse();
+                view.removeRowRegTable();
                 drop(course);
-                view.refreshRegistered();
+                database.add(course);
+            }
+            
+            if(ae.getSource() == view.addCourse) {
+                view.showAdder();
+            }
+            
+            if(ae.getSource() == view.back) {
+                view.showMain();
+            }
+            
+            if(ae.getSource() == view.link) {
+                try {
+                    Course course = view.getSelectedCourse();
+                    URI uri = new URI("https://catalog.lsu.edu/search_advanced.php?cur_cat_oid=17&search_database=Search&search_db=Search&cpage=1&ecpage=1&ppage=1&spage=1&tpage=1&location=33&filter%5Bkeyword%5D=" + course.getDepartment() + "+" + course.getNumber());
+                    if(Desktop.isDesktopSupported()) {
+                        Desktop.getDesktop().browse(uri);
+                    }
+                } catch (URISyntaxException | IOException ex) {}
             }
         }
     }

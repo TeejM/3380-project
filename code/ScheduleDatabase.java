@@ -64,8 +64,20 @@ public class ScheduleDatabase {
         return courses2.get(i).get(j);
     }
     
+    public void add(Course course) {
+        courses.add(course);
+    }
+    
+    public void remove(Course course) {
+        courses.remove(course);
+    }
+    
     public ArrayList<String> getDepartments() {
         return departments;
+    }
+    
+    public ArrayList<Course> getCourses() {
+        return courses;
     }
     
    private void parseCourses() throws FileNotFoundException, IOException {
@@ -117,6 +129,5 @@ public class ScheduleDatabase {
             }
             courses2.get(departments.indexOf(c.getDepartment())).add(c);
         }
-        System.out.println(courses2);
     }
 }

@@ -9,6 +9,5 @@ public class ScheduleSystem {
         ScheduleDatabase data = new ScheduleDatabase();
         ScheduleView view = new ScheduleView(data);
         ScheduleController controller = new ScheduleController(view, data);
-        User user = new User();
     }
 }

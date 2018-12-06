@@ -1,24 +1,23 @@
 package schedulesystem;
 
-import javax.swing.*;
 import java.util.ArrayList;
 
 public class User {
     
-    ArrayList<Course> completed;
-    ArrayList<Course> registered = new ArrayList<Course>();
+    ScheduleView view;
+    ArrayList<Course> registered = new ArrayList<>();
     
-    public User() {
-        
+    public User(ScheduleView view) {
+        this.view = view;
     }
 
     public void registerCourse(Course course){
         registered.add(course);
-        JOptionPane.showMessageDialog(null, "Course Registered");
+        view.showMessage("Course Registered");
     }
 
     public void dropCourse(Course course){
         registered.remove(course);
-        JOptionPane.showMessageDialog(null, "Course Dropped");
+        view.showMessage("Course Dropped");
     }
 }

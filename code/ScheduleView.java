@@ -2,15 +2,15 @@ package schedulesystem;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
 import javax.swing.*;
-import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.*;
 
 public class ScheduleView extends JFrame{
 
     private final ScheduleDatabase database;
-    private final JPanel main, mySchedule, browser, registered;
+    private final JPanel main, mySchedule, browser, registered, adder;
     public final JButton addCourse = new JButton("Add Course");
     public final JButton browseCourses = new JButton("Browse Courses");
     public final JButton viewSchedule = new JButton("Schedule");
@@ -18,13 +18,16 @@ public class ScheduleView extends JFrame{
     public final JButton register = new JButton("Register Course");
     public final JButton backToMain = new JButton("Back");
     public final JButton drop = new JButton("Drop");
-    private final JTable table;
-    private JTable regTable;
+    public final JButton search = new JButton("Search Course");
+    public final JButton back = new JButton("Back");
+    public final JButton link = new JButton("Course Page");
+    public final JTextField dept, courseNum, sectionNum, filterField;
+    private final JTable table, regTable;
     private TableModel model, regModel;
     private TableColumnModel columns, regColumns;
-    private final JScrollPane scrollpane;
-    private JScrollPane regScrollPane;
-    public User user = new User();
+    public TableRowSorter<TableModel> tableFilter;
+    private final JScrollPane scrollpane, regScrollPane;
+    public User user = new User(this);
 
 
     
@@ -38,6 +41,9 @@ public class ScheduleView extends JFrame{
         mySchedule = new JPanel();
         browser = new JPanel();
         registered = new JPanel();
+        adder = new JPanel();
+        
+        filterField = new JTextField(10);
         
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(600, 200);
@@ -46,11 +52,38 @@ public class ScheduleView extends JFrame{
         main.add(browseCourses);
         main.add(viewSchedule);
         main.add(registeredCourses);
-
         
         model = createTable();
         table = new JTable(model);
+        tableFilter = new TableRowSorter<>(model);
+        table.setRowSorter(tableFilter);
         columns = createColumns(table);
+        
+        filterField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent de) {
+                String text = filterField.getText();
+                
+                if (text.trim().length() == 0)
+                    tableFilter.setRowFilter(null);
+                else
+                    tableFilter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent de) {
+                String text = filterField.getText();
+                
+                if (text.trim().length() == 0)
+                    tableFilter.setRowFilter(null);
+                else
+                    tableFilter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent de) {
+            } 
+        });
 
         table.setShowVerticalLines(false);
         table.setFont(new Font("Helvetica", Font.PLAIN, 16));
@@ -61,8 +94,26 @@ public class ScheduleView extends JFrame{
         //browser.add(backToMain);
         browser.add(scrollpane);
         browser.add(register);
+        browser.add(filterField);
+        browser.add(link);
 
-
+        JLabel textLabel1 = new JLabel("Department");
+        dept = new JTextField(4);
+        textLabel1.setLabelFor(dept);
+        JLabel textLabel2 = new JLabel("Course Number");
+        courseNum = new JTextField(4);
+        textLabel2.setLabelFor(courseNum);
+        JLabel textLabel3 = new JLabel("Section Number");
+        sectionNum = new JTextField(3);
+        textLabel3.setLabelFor(sectionNum);
+        adder.add(textLabel1);
+        adder.add(dept);
+        adder.add(textLabel2);
+        adder.add(courseNum);
+        adder.add(textLabel3);
+        adder.add(sectionNum);
+        adder.add(search);
+        adder.add(back);
 
         regModel = createRegTable();
         regTable = new JTable(regModel);
@@ -79,7 +130,6 @@ public class ScheduleView extends JFrame{
         registered.add(regScrollPane);
         registered.add(drop);
         registered.setVisible(true);
-
 
         this.setLayout(new BorderLayout());
         this.add(main, BorderLayout.CENTER);
@@ -99,6 +149,16 @@ public class ScheduleView extends JFrame{
         browseCourses.addActionListener(listenForBrowse);
     }
     
+    public void addAdderListener(ActionListener listenForAdder) {
+        
+        addCourse.addActionListener(listenForAdder);
+    }
+    
+    public void addBackListener(ActionListener listenForBack) {
+        
+        back.addActionListener(listenForBack);
+    }
+    
     public void addMainListener(ActionListener listenForMain) {
         
         backToMain.addActionListener(listenForMain);
@@ -109,16 +169,20 @@ public class ScheduleView extends JFrame{
         registeredCourses.addActionListener(listenForRegisteredCourses);
     }
 
-    public void addDropListener (ActionListener listenforDrop){
+    public void addDropListener (ActionListener listenForDrop){
 
-        drop.addActionListener(listenforDrop);
+        drop.addActionListener(listenForDrop);
+    }
+    
+    public void addLinkListener (ActionListener listenForLink){
+        link.addActionListener(listenForLink);
     }
     
     public void showBrowse() {
         
         main.setVisible(false);
         this.add(browser);
-        this.setSize(900, 600);
+        this.setSize(900, 650);
         browser.setVisible(true);
         backToMain.setVisible(true);
     }
@@ -126,9 +190,17 @@ public class ScheduleView extends JFrame{
     public void showMain() {
         browser.setVisible(false);
         registered.setVisible(false);
+        adder.setVisible(false);
         backToMain.setVisible(false);
         main.setVisible(true);
         this.setSize(600, 200);
+    }
+    
+    public void showAdder() {
+        main.setVisible(false);
+        this.add(adder);
+        this.setSize(600, 125);
+        adder.setVisible(true);
     }
 
     public void showRegistered(){
@@ -140,7 +212,7 @@ public class ScheduleView extends JFrame{
     }
     
     private TableModel createTable() {
-        TableModel model = new AbstractTableModel() {
+        TableModel m = new DefaultTableModel() {
             @Override
             public int getRowCount() {
                 return database.size();
@@ -169,11 +241,11 @@ public class ScheduleView extends JFrame{
             }
         };
         
-        return model;
+        return m;
     }
 
     private TableModel createRegTable() {
-        TableModel model = new AbstractTableModel() {
+        TableModel m = new DefaultTableModel() {
             @Override
             public int getRowCount() { return user.registered.size(); }
 
@@ -199,7 +271,7 @@ public class ScheduleView extends JFrame{
             }
         };
 
-        return model;
+        return m;
     }
     private TableColumnModel createColumns(JTable table) {
         TableColumnModel columnModel = table.getColumnModel();
@@ -232,11 +304,21 @@ public class ScheduleView extends JFrame{
 
     public Course getSelectedDropCourse(){
         int row = regTable.getSelectedRow();
-        return database.get(row);
+        return user.registered.get(row);
     }
-
-    public void refreshRegistered(){
-        regTable.removeRow(5);
+    
+    public void removeRowTable() {
+        DefaultTableModel m = (DefaultTableModel)table.getModel();
+        m.fireTableDataChanged();
+    }
+    
+    public void removeRowRegTable() {
+        DefaultTableModel m = (DefaultTableModel)regTable.getModel();
+        m.fireTableDataChanged();
+    }
+    
+    public void showMessage(String str) {
+        JOptionPane.showMessageDialog(this.getContentPane(), str);
     }
 
 }
