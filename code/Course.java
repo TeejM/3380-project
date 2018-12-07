@@ -13,9 +13,9 @@ public class Course implements Serializable {
     
     public Course(String day, String title, String department, int startTime, int endTime, int section, int number, int hours) {
         if(day.length() > 5)
-            this.day = day.substring(0, 5);
+            this.day = day.substring(0, 5).replaceAll("[^MTWHF]","");
         else
-            this.day = day;
+            this.day = day.replaceAll("[^MTWHFS]","");
         this.title = title;
         this.department = department;
         this.startTime = startTime;

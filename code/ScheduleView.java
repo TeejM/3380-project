@@ -10,15 +10,14 @@ import javax.swing.table.*;
 public class ScheduleView extends JFrame{
 
     private final ScheduleDatabase database;
-    private final JPanel main, mySchedule, browser, registered, adder;
-    public final JButton addCourse = new JButton("Add Course");
+    private final JPanel main, browser, registered, adder;
+    public final JButton addCourse = new JButton("Register Course");
     public final JButton browseCourses = new JButton("Browse Courses");
-    public final JButton viewSchedule = new JButton("Schedule");
     public final JButton registeredCourses = new JButton("Registered Courses");
     public final JButton register = new JButton("Register Course");
     public final JButton backToMain = new JButton("Back");
     public final JButton drop = new JButton("Drop");
-    public final JButton search = new JButton("Search Course");
+    public final JButton manualAdd = new JButton("Register Course");
     public final JButton back = new JButton("Back");
     public final JButton link = new JButton("Course Page");
     public final JTextField dept, courseNum, sectionNum, filterField;
@@ -38,7 +37,6 @@ public class ScheduleView extends JFrame{
         this.setLocationRelativeTo(null);
         
         main = new JPanel();
-        mySchedule = new JPanel();
         browser = new JPanel();
         registered = new JPanel();
         adder = new JPanel();
@@ -50,7 +48,6 @@ public class ScheduleView extends JFrame{
         
         main.add(addCourse);
         main.add(browseCourses);
-        main.add(viewSchedule);
         main.add(registeredCourses);
         
         model = createTable();
@@ -91,7 +88,6 @@ public class ScheduleView extends JFrame{
         
         scrollpane = new JScrollPane(table);
         scrollpane.setPreferredSize(new Dimension(800, 480));
-        //browser.add(backToMain);
         browser.add(scrollpane);
         browser.add(register);
         browser.add(filterField);
@@ -112,7 +108,7 @@ public class ScheduleView extends JFrame{
         adder.add(courseNum);
         adder.add(textLabel3);
         adder.add(sectionNum);
-        adder.add(search);
+        adder.add(manualAdd);
         adder.add(back);
 
         regModel = createRegTable();
@@ -178,8 +174,13 @@ public class ScheduleView extends JFrame{
         link.addActionListener(listenForLink);
     }
     
+    public void addCourseAddListener (ActionListener listenForCourseAdd){
+        manualAdd.addActionListener(listenForCourseAdd);
+    }
+    
     public void showBrowse() {
         
+        adder.setVisible(false);
         main.setVisible(false);
         this.add(browser);
         this.setSize(900, 650);
@@ -209,6 +210,10 @@ public class ScheduleView extends JFrame{
         registered.setVisible(true);
         backToMain.setVisible(true);
         this.setSize(900, 600);
+    }
+    
+    public void searchBrowser(String str) {
+        filterField.setText(str);
     }
     
     private TableModel createTable() {

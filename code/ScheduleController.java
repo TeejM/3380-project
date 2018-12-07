@@ -24,6 +24,7 @@ public class ScheduleController
         this.view.addAdderListener(new Actions());
         this.view.addBackListener(new Actions());
         this.view.addLinkListener(new Actions());
+        this.view.addCourseAddListener(new Actions());
     }
     
     public void register(Course course) {
@@ -34,12 +35,35 @@ public class ScheduleController
         view.user.dropCourse(course);
     }
     
-    public boolean checkConflict() {
-        return true;
-    }
-    
-    public boolean checkCompletion() {
-        return true;
+    public boolean checkConflict(Course c1, Course c2) {
+        
+        String[] days = {"M", "T", "W", "TH", "F", "S"};
+        boolean conflict = false;
+        for(String s : days) {
+            if(c1.getDay().contains(s) && c2.getDay().contains(s))
+                conflict = true;
+        }
+        
+        if(!conflict)
+            return false;
+        
+        int c1start = c1.getStartTime(), c1end = c1.getEndTime();
+        int c2start = c2.getStartTime(), c2end = c2.getEndTime();
+        
+        if(c1start < 730) {
+            c1start += 1200;
+            c1end += 1200;
+        }
+        if(c2start < 730) {
+            c2start += 1200;
+            c2end += 1200;
+        }
+        if(c1end > c2start && c1start < c2end)
+            return true;
+        if(c2end > c1start && c2start < c1end)
+            return true;
+        
+        return false;
     }
 
     public class Actions implements ActionListener {
@@ -56,9 +80,20 @@ public class ScheduleController
 
             if (ae.getSource() == view.register) {
                 Course reg = view.getSelectedCourse();
-                view.removeRowTable();
-                register(reg);
-                database.remove(reg);
+                boolean conflict = false;
+                for(Course c : view.user.registered)
+                    if(checkConflict(c, reg)) {
+                        conflict = true;
+                        break;
+                    }
+                if(!conflict) {
+                    view.removeRowTable();
+                    register(reg);
+                    database.remove(reg);
+                }
+                else {
+                    view.showMessage("Course not added: Time Conflict");
+                }
             }
 
             if (ae.getSource() == view.drop) {
@@ -85,31 +120,25 @@ public class ScheduleController
                     }
                 } catch (URISyntaxException | IOException ex) {}
             }
+            
+            if(ae.getSource() == view.manualAdd) {
+                Course course = database.find(view.dept.getText(), Integer.parseInt(view.courseNum.getText()), Integer.parseInt(view.sectionNum.getText()));
+                if (course == null)
+                    view.showMessage("Course not found.");
+                else {
+                    boolean conflict = false;
+                    for(Course c : view.user.registered)
+                        conflict = checkConflict(c, course);
+                    if(!conflict) {
+                        view.removeRowTable();
+                        register(course);
+                        database.remove(course);
+                    }
+                    else {
+                        view.showMessage("Course not added: Time Conflict");
+                    }
+                }
+            }
         }
     }
-    
-    /*class BrowseListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent ae) {
-            view.showBrowse();
-        }
-    }
-    
-    class MainListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent ae) {
-            view.showMain();
-        }
-    }
-
-    class RegisterListener implements ActionListener{
-
-        @Override
-        public void actionPerformed(ActionEvent ae) {
-            if(ae.getSource() == view.register)
-                System.out.println("Class registered");
-        }
-    }*/
 }

@@ -16,9 +16,7 @@ import java.util.regex.Pattern;
 
 public class ScheduleDatabase {
 
-    private ArrayList<String> departments = new ArrayList<>();
     private ArrayList<Course> courses;
-    private ArrayList<ArrayList<Course>> courses2 = new ArrayList<>();
     private FileInputStream fileIn;
     private ObjectInputStream in;
     private FileOutputStream fileOut;
@@ -39,15 +37,10 @@ public class ScheduleDatabase {
             parseCourses();
         }
         catch(IOException | ClassNotFoundException e) {}
-        divideCourses();
     }
     
     public int size() {
         return courses.size();
-    }
-    
-    public int size(int i) {
-        return courses2.get(i).size();
     }
     
     public Course get(int i) {
@@ -60,10 +53,6 @@ public class ScheduleDatabase {
         return courses.get(i);
     }
     
-    public Course get(int i, int j) {
-        return courses2.get(i).get(j);
-    }
-    
     public void add(Course course) {
         courses.add(course);
     }
@@ -72,18 +61,26 @@ public class ScheduleDatabase {
         courses.remove(course);
     }
     
-    public ArrayList<String> getDepartments() {
-        return departments;
-    }
-    
     public ArrayList<Course> getCourses() {
         return courses;
     }
     
+    public Course find(String dept, int num, int sec) {
+        for (Course c : courses) {
+            if(c.getDepartment().equals(dept))
+                if(c.getNumber() == num)
+                    if(c.getSection() == sec)
+                        return c;
+        }
+        return null;
+    }
+    
    private void parseCourses() throws FileNotFoundException, IOException {
         String regex = "([A-Z]+)\\s+(\\d\\d\\d\\d).*?(\\d)\\s+([A-Z/]+\\s+[A-Z/]*\\s*[A-Z/]*\\s*[A-Z/]*\\s*[A-Z/]*\\s*)\\s+(\\d).0\\s+(\\d+)-(\\d+)(?:N*)\\s+([A-Z]+\\s*[A-Z]*\\s*[A-Z]*)";
+        String regex2 = "(?:(F)).*?([A-Z]+)\\s+(\\d\\d\\d\\d).*?(\\d)\\s+([A-Z/]+\\s+[A-Z/]*\\s*[A-Z/]*\\s*[A-Z/]*\\s*[A-Z/]*\\s*)\\s+(\\d).0\\s+(\\d+)-(\\d+)(?:N*)\\s+([A-Z]+\\s*[A-Z]*\\s*[A-Z]*)";
         Pattern pattern = Pattern.compile(regex);
-        Matcher matcher;
+        Pattern pattern2 = Pattern.compile(regex);
+        Matcher matcher, matcher2;
         String line;
         ArrayList<String> files = new ArrayList<>();
         
@@ -102,14 +99,22 @@ public class ScheduleDatabase {
                 while((line = br.readLine()) != null) {
                     if(line.contains("&amp;"))
                         line = line.replace("&amp;","AND");
-                    if(!line.startsWith("(F)") && !line.contains("TBA") && !line.contains("LAB") && !line.contains("1-3")) {
-                        matcher = pattern.matcher(line);
-                        if(matcher.find())
-                            courses.add(new Course(matcher.group(8), matcher.group(4), matcher.group(1), Integer.parseInt(matcher.group(6)), Integer.parseInt(matcher.group(7)), Integer.parseInt(matcher.group(3)), Integer.parseInt(matcher.group(2)), Integer.parseInt(matcher.group(5))));
+                    if(!line.contains("TBA") && !line.contains("LAB") && !line.contains("1-3")) {
+                        if(line.contains("(F)")) {
+                            matcher2 = pattern2.matcher(line);
+                            if(matcher2.find())
+                                courses.add(new Course(matcher2.group(8), matcher2.group(4), matcher2.group(1), Integer.parseInt(matcher2.group(6)), Integer.parseInt(matcher2.group(7)), Integer.parseInt(matcher2.group(3)), Integer.parseInt(matcher2.group(2)), Integer.parseInt(matcher2.group(5))));
+                        }
+                        else {
+                            matcher = pattern.matcher(line);
+                            if(matcher.find())
+                                courses.add(new Course(matcher.group(8), matcher.group(4), matcher.group(1), Integer.parseInt(matcher.group(6)), Integer.parseInt(matcher.group(7)), Integer.parseInt(matcher.group(3)), Integer.parseInt(matcher.group(2)), Integer.parseInt(matcher.group(5))));
+                        }
                     }
                 }
             }
         }
+        System.out.println(courses.size());
         try {
             fileOut = new FileOutputStream(file);
             out = new ObjectOutputStream(fileOut);
@@ -119,15 +124,5 @@ public class ScheduleDatabase {
         }
         catch(FileNotFoundException e) {}
         catch(IOException e){}
-    }
-    
-    private void divideCourses() {
-        for(Course c : courses) {
-            if(!departments.contains(c.getDepartment())) {
-                departments.add(c.getDepartment());
-                courses2.add(new ArrayList<>());
-            }
-            courses2.get(departments.indexOf(c.getDepartment())).add(c);
-        }
     }
 }
