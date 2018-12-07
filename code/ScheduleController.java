@@ -86,14 +86,15 @@ public class ScheduleController
                         conflict = true;
                         break;
                     }
-                if(!conflict) {
+                if(!conflict && view.user.hours() + reg.getHours() <= 19) {
                     view.removeRowTable();
                     register(reg);
                     database.remove(reg);
                 }
-                else {
+                else if (view.user.hours() + reg.getHours() <= 19) 
                     view.showMessage("Course not added: Time Conflict");
-                }
+                else
+                    view.showMessage("Course not added: Too Many Hours");
             }
 
             if (ae.getSource() == view.drop) {
@@ -129,14 +130,15 @@ public class ScheduleController
                     boolean conflict = false;
                     for(Course c : view.user.registered)
                         conflict = checkConflict(c, course);
-                    if(!conflict) {
+                    if(!conflict && view.user.hours() + course.getHours() <= 19) {
                         view.removeRowTable();
                         register(course);
                         database.remove(course);
                     }
-                    else {
+                    else if (view.user.hours() + course.getHours() <= 19) 
                         view.showMessage("Course not added: Time Conflict");
-                    }
+                    else
+                        view.showMessage("Course not added: Too Many Hours");
                 }
             }
         }
